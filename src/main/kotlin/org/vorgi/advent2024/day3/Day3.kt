@@ -19,16 +19,47 @@ class Day3 {
     val input3="""xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"""
     val result3=doDontMultiply(input3)
 
+    println("result3=$result3")
+
+    check(result3==48L)
+
+    val result4=doDontMultiply(input2)
+    println("result4=$result4")
+
   }
 
   private fun doDontMultiply(input: String): Long {
-    val mulRegex=Regex("""(do\(\))|(don't\(\))|(mul\([0-9]*,[0-9]*\))""")
+    val mulRegex=Regex("""(do\(\))|(don't\(\))|(mul\(([0-9]*),([0-9]*)\))""")
 
-    mulRegex.findAll(input).forEach {
-      println("${it.value}")
+    var doMulitply=true
+
+    var sum=0L
+
+    mulRegex.findAll(input).forEach { instruction ->
+      println("${instruction.value}")
+      when(instruction.value) {
+        "do()" -> {
+          doMulitply=true
+        }
+        "don't()" -> {
+          doMulitply=false
+        }
+        else -> {
+          println("${instruction.groups[4]} ${instruction.groups[5]}")
+          if(doMulitply) {
+            val a = instruction.groups[4]?.value?.toLong()
+            val b = instruction.groups[5]?.value?.toLong()
+            if(a!=null&&b!=null){
+              sum+=a*b
+            } else {
+              throw IllegalArgumentException("fail parsing $instruction")
+            }
+          }
+        }
+      }
     }
 
-    return 0L
+    return sum
   }
 
   private fun multiply(input1: String): Long {
