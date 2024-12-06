@@ -7,7 +7,9 @@ data class Point(val x: Int, val y: Int)
 class CharGrid(input: List<String>) {
   val width: Int = input[0].length
   val height: Int = input.size
-  val data: MutableList<MutableList<Char>> = MutableList(height) { y-> MutableList(width) { x-> input[y][x] } }
+  private val data: MutableList<MutableList<Char>> = MutableList(height) { y ->
+    MutableList(width) { x -> input[y][x] }
+  }
 
   fun getAt(x: Int, y: Int): Char {
     if (x < 0 || x >= width || y < 0 || y >= height) {
@@ -25,10 +27,7 @@ class CharGrid(input: List<String>) {
 }
 
 enum class Direction(val dx: Int, val dy: Int) {
-  Up(0, -1),
-  Down(0, 1),
-  Left(-1, 0),
-  Right(1, 0);
+  Up(0, -1), Down(0, 1), Left(-1, 0), Right(1, 0);
 }
 
 class Day6 {
@@ -49,10 +48,18 @@ class Day6 {
 
     check(result1 == 41)
 
-    val input2= Utils.readInput("day6")
+    val input2 = Utils.readInput("day6")
 
     val result2 = countSteps(input2)
     println(result2)
+
+    val result3 = findLoopWalls(input1)
+
+    println(result3)
+
+    val result4 = findLoopWalls(input2)
+
+    println(result4)
   }
 
   private fun countSteps(input: List<String>): Int {
@@ -63,46 +70,57 @@ class Day6 {
 
     val positionSet = mutableSetOf(pos)
 
-
     while (pos.x in 0..<grid.width && pos.y in 0..<grid.height) {
-      var newPos= Point(pos.x + dir.dx, pos.y + dir.dy)
-      if(grid.getAt(newPos.x, newPos.y) == '#') {
-        newPos=pos
-        dir = when(dir) {
-          Direction.Up -> {
-            Direction.Right
-          }
-
-          Direction.Right -> {
-            Direction.Down
-          }
-
-          Direction.Down -> {
-            Direction.Left
-          }
-
-          Direction.Left -> {
-            Direction.Up
-          }
-        }
+      val newPos = Point(pos.x + dir.dx, pos.y + dir.dy)
+      if (grid.getAt(newPos.x, newPos.y) == '#') {
+        dir = turnRight(dir)
       } else {
         pos = newPos
-        if(pos.x in 0..<grid.width && pos.y in 0..<grid.height)
-          positionSet.add(newPos)
+        if (pos.x in 0..<grid.width && pos.y in 0..<grid.height) positionSet.add(newPos)
       }
     }
 
     return positionSet.size
   }
 
+  private fun isLoop(grid: CharGrid): Boolean {
+    var pos: Point = findGuardPosition(grid)
 
-  private fun findGuardPosition(grid:CharGrid): Point {
+    var dir: Direction = Direction.Up
+
+    val posDirSet = mutableSetOf(Pair(pos, dir))
+
+    while (pos.x in 0..<grid.width && pos.y in 0..<grid.height) {
+      val newPos = Point(pos.x + dir.dx, pos.y + dir.dy)
+      if (grid.getAt(newPos.x, newPos.y) == '#') {
+        dir = turnRight(dir)
+      } else {
+        pos = newPos
+        val posDir = Pair(pos, dir)
+        if (posDirSet.contains(posDir)) {
+          return true
+        }
+        posDirSet.add(posDir)
+      }
+    }
+
+    return false
+  }
+
+  private fun turnRight(dir: Direction) = when (dir) {
+    Direction.Up -> Direction.Right
+    Direction.Right -> Direction.Down
+    Direction.Down -> Direction.Left
+    Direction.Left -> Direction.Up
+  }
+
+  private fun findGuardPosition(grid: CharGrid): Point {
 
     var foundx: Int = -1
     var foundy: Int = -1
 
     for (y in 0..<grid.height) {
-      for(x in 0..<grid.width) {
+      for (x in 0..<grid.width) {
         if (grid.getAt(x, y) == '^') {
           foundx = x
           foundy = y
@@ -113,7 +131,7 @@ class Day6 {
     return Point(foundx, foundy)
   }
 
-  fun findLoopWalls(input: List<String>): Set<Point> {
+  fun findLoopWalls(input: List<String>): Int {
     val grid = CharGrid(input)
     val loopWalls = mutableSetOf<Point>()
 
@@ -121,14 +139,14 @@ class Day6 {
       for (x in 0..<grid.width) {
         if (grid.getAt(x, y) == '.') { // Only consider empty spaces
           grid.setAt(x, y, '#') // Place a temporary wall
-          if (countSteps(input)) {   //  Careful. Needs to operate on data structure grid
+          if (isLoop(grid)) {   //  Careful. Needs to operate on data structure grid
             loopWalls.add(Point(x, y))
           }
           grid.setAt(x, y, '.')   // Remove the temporary wall
         }
       }
     }
-    return loopWalls
+    return loopWalls.size
   }
 
 }
