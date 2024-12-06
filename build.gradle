@@ -1,21 +1,22 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
+  id 'org.jetbrains.kotlin.jvm' version '2.0.21'
 }
 
 group = 'org.vorgi'
 version = '1.0-SNAPSHOT'
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+  implementation("org.processing:core:3.3.7")
+  testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
 
 test {
-    useJUnitPlatform()
+  useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(21)
+  jvmToolchain(21)
 }
