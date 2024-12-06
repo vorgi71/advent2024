@@ -1,58 +1,138 @@
 package org.vorgi.org.vorgi.advent2024.day6
 
-import processing.core.PApplet
+import org.vorgi.org.vorgi.Utils
 
-class Day6 : PApplet() {
-  private lateinit var grid: Array<IntArray>
-  private var gridSize:Int = 0
-  private val cellSize = 60f
+data class Point(val x: Int, val y: Int)
 
-  override fun settings() {
-    gridSize=args[0].toInt()
-    size((gridSize * cellSize).toInt(), (gridSize * cellSize).toInt())
-  }
+class CharGrid(input: List<String>) {
+  val width: Int = input[0].length
+  val height: Int = input.size
+  val data: MutableList<MutableList<Char>> = MutableList(height) { y-> MutableList(width) { x-> input[y][x] } }
 
-  override fun setup() {
-    // Initialize your grid with all cells as 0 (empty)
-    grid = Array(gridSize) { IntArray(gridSize) { 0 } }
-    background(220)
-    // Prevent drawing multiple times per frame
-    noLoop()
-  }
-
-  override fun draw() {
-    background(220)
-    // Draw grid
-    for (x in 0 until gridSize) {
-      for (y in 0 until gridSize) {
-        // Different colors based on grid value
-        when (grid[x][y]) {
-          0 -> fill(255) // White for empty
-          1 -> fill(0) // Black for filled
-          2 -> fill(200F, 0F, 0F) // Red for special
-        }
-        stroke(150) // Grid line color
-        rect(x * cellSize, y * cellSize, cellSize, cellSize)
-      }
+  fun getAt(x: Int, y: Int): Char {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+      return '?'
     }
+    return data[y][x]
   }
 
-  override fun mousePressed() {
-    // Calculate which grid cell was clicked
-    val gridX = (mouseX / cellSize).toInt()
-    val gridY = (mouseY / cellSize).toInt()
-
-    // Ensure click is within grid
-    if (gridX in 0 until gridSize && gridY in 0 until gridSize) {
-      // Toggle the cell state (0 -> 1 -> 0)
-      grid[gridX][gridY] = (grid[gridX][gridY] + 1) % 2
-
-      // Redraw the grid
-      redraw()
+  fun setAt(x: Int, y: Int, char: Char) {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+      return
     }
+    data[y][x] = char
   }
 }
 
+enum class Direction(val dx: Int, val dy: Int) {
+  Up(0, -1),
+  Down(0, 1),
+  Left(-1, 0),
+  Right(1, 0);
+}
+
+class Day6 {
+  fun start() {
+    val input1 = """....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...""".lines()
+
+    val result1 = countSteps(input1)
+    println(result1)
+
+    check(result1 == 41)
+
+    val input2= Utils.readInput("day6")
+
+    val result2 = countSteps(input2)
+    println(result2)
+  }
+
+  private fun countSteps(input: List<String>): Int {
+    val grid = CharGrid(input)
+
+    var pos: Point = findGuardPosition(grid)
+    var dir: Direction = Direction.Up
+
+    val positionSet = mutableSetOf(pos)
+
+
+    while (pos.x in 0..<grid.width && pos.y in 0..<grid.height) {
+      var newPos= Point(pos.x + dir.dx, pos.y + dir.dy)
+      if(grid.getAt(newPos.x, newPos.y) == '#') {
+        newPos=pos
+        dir = when(dir) {
+          Direction.Up -> {
+            Direction.Right
+          }
+
+          Direction.Right -> {
+            Direction.Down
+          }
+
+          Direction.Down -> {
+            Direction.Left
+          }
+
+          Direction.Left -> {
+            Direction.Up
+          }
+        }
+      } else {
+        pos = newPos
+        if(pos.x in 0..<grid.width && pos.y in 0..<grid.height)
+          positionSet.add(newPos)
+      }
+    }
+
+    return positionSet.size
+  }
+
+
+  private fun findGuardPosition(grid:CharGrid): Point {
+
+    var foundx: Int = -1
+    var foundy: Int = -1
+
+    for (y in 0..<grid.height) {
+      for(x in 0..<grid.width) {
+        if (grid.getAt(x, y) == '^') {
+          foundx = x
+          foundy = y
+          break
+        }
+      }
+    }
+    return Point(foundx, foundy)
+  }
+
+  fun findLoopWalls(input: List<String>): Set<Point> {
+    val grid = CharGrid(input)
+    val loopWalls = mutableSetOf<Point>()
+
+    for (y in 0..<grid.height) {
+      for (x in 0..<grid.width) {
+        if (grid.getAt(x, y) == '.') { // Only consider empty spaces
+          grid.setAt(x, y, '#') // Place a temporary wall
+          if (countSteps(input)) {   //  Careful. Needs to operate on data structure grid
+            loopWalls.add(Point(x, y))
+          }
+          grid.setAt(x, y, '.')   // Remove the temporary wall
+        }
+      }
+    }
+    return loopWalls
+  }
+
+}
+
 fun main() {
-  PApplet.main(Day6::class.java,"20")
+  Day6().start()
 }
