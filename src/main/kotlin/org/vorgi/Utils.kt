@@ -48,7 +48,7 @@ fun <T> List<T>.combinations(size: Int = this.size): List<List<T>> {
 }
 
 fun main() {
-  listOf('1','2','3').combinations(3).forEach {
+  listOf('1','2','3').combinations(2).forEach {
     println(it)
   }
 }

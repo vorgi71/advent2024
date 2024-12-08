@@ -2,13 +2,28 @@ package org.vorgi.org.vorgi.advent2024.day6
 
 import org.vorgi.org.vorgi.Utils
 
-data class Point(val x: Int, val y: Int)
+data class Point(val x: Int, val y: Int) {
+  operator fun minus(point: Point): Point {
+    return Point(this.x-point.x,this.y-point.y)
+  }
 
-class CharGrid(input: List<String>) {
+  operator fun plus(point: Point): Point {
+    return Point(this.x+point.x,this.y+point.y)
+  }
+}
+
+open class CharGrid(input: List<String>) {
   val width: Int = input[0].length
   val height: Int = input.size
   private val data: MutableList<MutableList<Char>> = MutableList(height) { y ->
     MutableList(width) { x -> input[y][x] }
+  }
+
+  fun isInside(x:Int,y: Int) : Boolean {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+      return false
+    }
+    return true
   }
 
   fun getAt(x: Int, y: Int): Char {
@@ -23,6 +38,19 @@ class CharGrid(input: List<String>) {
       return
     }
     data[y][x] = char
+  }
+
+  override fun toString(): String {
+    val returnValue= buildString {
+      for(line in data) {
+        for(char in line) {
+          append(char)
+        }
+        append('\n')
+      }
+
+    }
+    return returnValue
   }
 }
 
