@@ -46,12 +46,31 @@ class Day8 {
     val result2=countAntinodes(input2)
 
     println("result2 = ${result2}")
+
+    check(result2==301)
+
+    val result3 = countAntinodes(input1,AntinodeMethod.LINE)
+
+    println("result3 = ${result3}")
+
+    check(result3 == 34)
+
+    val result4=countAntinodes(input2,AntinodeMethod.LINE)
+
+    println(result4)
   }
 
-  private fun countAntinodes(input: List<String>): Int {
+  enum class AntinodeMethod {
+    PAIR,
+    LINE
+  }
+
+  private fun countAntinodes(input: List<String>,antinodeMethod: AntinodeMethod=AntinodeMethod.PAIR): Int {
     var grid=CharGrid8(input)
 
     val charSet= mutableSetOf<Char>()
+
+    val antinodes= mutableSetOf<Pair<Char,Point>>()
 
     for(y in 0..< grid.height) {
       for(x in 0..< grid.width) {
@@ -62,10 +81,12 @@ class Day8 {
       }
     }
 
-    var sum=0
-
     for (c in charSet) {
+      print("$c:")
       var charPositions = grid.findChars(c)
+
+      println("${charPositions.size}")
+
       var charCombinations = charPositions.combinations(2)
       var uniqueCharCombinations = charCombinations.map { pointList ->
         pointList.sortedBy { point: Point ->
@@ -75,26 +96,49 @@ class Day8 {
         (pointList[0] != pointList[1])
       }.toSet()
 
-      println("$c:")
       uniqueCharCombinations.forEach { pointList ->
-        val diff=pointList[1]-pointList[0]
-        val anti1=pointList[0]-diff
-        val anti2=pointList[1]+diff
-        val c1 = grid.getAt(anti1.x, anti1.y)
-        if(c1 =='.' || c1 == '#') {
-          grid.setAt(anti1.x,anti1.y,'#')
-          sum++
-        }
-        val c2 = grid.getAt(anti2.x, anti2.y)
-        if(c2 =='.' || c2 == '#') {
-          grid.setAt(anti2.x,anti2.y,'#')
-          sum++
+        val newAntinodes = createAntinodes(pointList,grid,antinodeMethod)
+
+        for(antinode in newAntinodes) {
+          val c1 = grid.getAt(antinode.x, antinode.y)
+          if (c1 == '.' || c1 == '#') {
+            grid.setAt(antinode.x, antinode.y, '#')
+          }
+          if (grid.isInside(antinode.x, antinode.y)) {
+            antinodes.add(Pair('#', antinode))
+          }
         }
       }
     }
 
     println(grid)
-    return sum
+    return antinodes.size
+  }
+
+  private fun createAntinodes(pointList: List<Point>,grid: CharGrid8,antinodeMethod: AntinodeMethod): List<Point> {
+    val diff = pointList[1] - pointList[0]
+
+    if(antinodeMethod==AntinodeMethod.PAIR) {
+      val anti1 = pointList[0] - diff
+      val anti2 = pointList[1] + diff
+      return listOf(anti1, anti2)
+    }
+
+    val result= mutableListOf<Point>()
+
+    var point=pointList[0]
+    while(grid.isInside(point)) {
+      result+=Point(point)
+      point-=diff
+    }
+
+    point=pointList[1]
+    while(grid.isInside(point)) {
+      result+=Point(point)
+      point+=diff
+    }
+
+    return result
   }
 }
 

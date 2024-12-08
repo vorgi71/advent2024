@@ -3,6 +3,8 @@ package org.vorgi.org.vorgi.advent2024.day6
 import org.vorgi.org.vorgi.Utils
 
 data class Point(val x: Int, val y: Int) {
+  constructor(p: Point) : this(p.x,p.y)
+
   operator fun minus(point: Point): Point {
     return Point(this.x-point.x,this.y-point.y)
   }
@@ -24,6 +26,10 @@ open class CharGrid(input: List<String>) {
       return false
     }
     return true
+  }
+
+  fun isInside(p:Point) : Boolean {
+    return isInside(p.x,p.y)
   }
 
   fun getAt(x: Int, y: Int): Char {
