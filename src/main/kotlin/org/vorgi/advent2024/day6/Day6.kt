@@ -12,6 +12,10 @@ data class Point(val x: Int, val y: Int) {
   operator fun plus(point: Point): Point {
     return Point(this.x+point.x,this.y+point.y)
   }
+
+  operator fun plus(dir:Direction) :Point {
+    return Point(dir.dx,dir.dy)+this
+  }
 }
 
 open class CharGrid(input: List<String>) {
@@ -39,6 +43,10 @@ open class CharGrid(input: List<String>) {
     return data[y][x]
   }
 
+  fun getAt(point:Point) : Char {
+    return getAt(point.x,point.y)
+  }
+
   fun setAt(x: Int, y: Int, char: Char) {
     if (x < 0 || x >= width || y < 0 || y >= height) {
       return
@@ -62,6 +70,10 @@ open class CharGrid(input: List<String>) {
 
 enum class Direction(val dx: Int, val dy: Int) {
   Up(0, -1), Down(0, 1), Left(-1, 0), Right(1, 0);
+
+  operator fun plus(point: Point) :Point {
+    return Point(this.dx,this.dy)+point
+  }
 }
 
 class Day6 {
