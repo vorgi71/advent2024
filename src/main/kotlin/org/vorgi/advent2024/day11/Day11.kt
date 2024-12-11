@@ -21,6 +21,22 @@ class Day11 {
     val result4=blink(input2,75)
   }
 
+  val resultMap= mutableMapOf<Long,List<Long>>()
+
+  fun processStone(stone:Long): List<Long> {
+    val result=resultMap.computeIfAbsent(stone) {
+      if (stone == 0L) {
+        return@computeIfAbsent listOf(1L)
+      } else if (countDigits(stone) % 2 == 0) {
+        val splitStone = splitLong(stone)
+        return@computeIfAbsent listOf(splitStone.first, splitStone.second)
+      } else {
+        return@computeIfAbsent listOf(stone * 2024)
+      }
+    }
+
+    return result
+  }
 
   fun splitLong(n: Long): Pair<Long, Long> {
     if (n == 0L) return Pair(0, 0)  // Handle 0
@@ -57,18 +73,11 @@ class Day11 {
       val newStones= mutableListOf<Long>()
 
       for(stone in stones) {
-        if(stone==0L) {
-          newStones.add(1)
-        } else if(countDigits(stone)%2==0) {
-          val splitStone=splitLong(stone)
-          newStones+=splitStone.first
-          newStones+=splitStone.second
-        } else {
-          newStones+=stone*2024L
-        }
+        newStones.addAll(processStone(stone))
+
       }
       stones=newStones
-      println("$i: ${stones.size}")
+      println("$i: ${stones.size} ${resultMap.size}")
     }
 
     return stones.size
