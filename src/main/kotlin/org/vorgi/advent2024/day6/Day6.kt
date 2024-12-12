@@ -54,6 +54,10 @@ open class CharGrid(input: List<String>) {
     data[y][x] = char
   }
 
+  fun setAt(p: Point,char: Char) {
+    setAt(p.x,p.y,char)
+  }
+
   override fun toString(): String {
     val returnValue= buildString {
       for(line in data) {
