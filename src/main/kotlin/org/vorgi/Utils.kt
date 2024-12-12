@@ -33,6 +33,14 @@ fun Int.pow(m:Int) : Int {
   return result
 }
 
+fun Long.pow(m:Long) :Long {
+  var result=1L
+  for(i in 0..<m) {
+    result*=this
+  }
+  return result
+}
+
 fun <T> List<T>.combinations(size: Int = this.size): List<List<T>> {
   if (size == 0) return listOf(emptyList())
   if (size == 1) return this.map { listOf(it) }
