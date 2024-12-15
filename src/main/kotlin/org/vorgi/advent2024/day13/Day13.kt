@@ -1,13 +1,10 @@
 package org.vorgi.org.vorgi.advent2024.day13
 
 import org.vorgi.org.vorgi.Utils
-import org.vorgi.org.vorgi.advent2024.day6.Point
 
 class Day13 {
 
-  data class GameMachine(val a: Pair<Long,Long>, val b: Pair<Long,Long>, val price: Pair<Long,Long>) {
-
-  }
+  data class GameMachine(val a: Pair<Long,Long>, val b: Pair<Long,Long>, val price: Pair<Long,Long>)
 
   fun start() {
     val input1 = """Button A: X+94, Y+34

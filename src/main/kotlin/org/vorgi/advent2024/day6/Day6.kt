@@ -2,7 +2,7 @@ package org.vorgi.org.vorgi.advent2024.day6
 
 import org.vorgi.org.vorgi.Utils
 
-data class Point(val x: Int, val y: Int) {
+data class Point(var x: Int, var y: Int) {
   constructor(p: Point) : this(p.x,p.y)
 
   operator fun minus(point: Point): Point {
