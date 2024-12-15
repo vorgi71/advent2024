@@ -4,6 +4,8 @@ import org.vorgi.org.vorgi.Utils
 import org.vorgi.org.vorgi.advent2024.day6.CharGrid
 import org.vorgi.org.vorgi.advent2024.day6.Direction
 import org.vorgi.org.vorgi.advent2024.day6.Point
+import kotlin.math.max
+import kotlin.math.min
 
 class Day15 {
 
@@ -104,7 +106,6 @@ class Day15 {
           behindCratePos += direction
           behindCrateChar = box.getAt(behindCratePos)
         } while (behindCrateChar == 'O')
-
         if (behindCrateChar == '#') {
           nextPos = robotPos
         } else if (behindCrateChar == '.') {
@@ -117,10 +118,48 @@ class Day15 {
       '[',']' -> {
         when(direction) {
           Direction.Left,Direction.Right -> {
-
+            var behindCrateChar:Char
+            var behindCratePos = nextPos
+            do {
+              behindCratePos += direction
+              behindCrateChar = box.getAt(behindCratePos)
+            } while (behindCrateChar == '[' || behindCrateChar == ']')
+            if (behindCrateChar == '#') {
+              nextPos = robotPos
+            } else if(behindCrateChar == '.') {
+              box.setAt(robotPos, '.')
+              box.setAt(robotPos + direction, '@')
+              box.setAt(behindCratePos, 'O')
+              val startX= min(behindCratePos.x,(robotPos+direction).x)
+              val endX= max(behindCratePos.x,(robotPos+direction).x)
+              for(x in startX..<endX step 2) {
+                box.setAt(x,robotPos.y,'[')
+                box.setAt(x+1,robotPos.y,']')
+              }
+            }
           }
           Direction.Up,Direction.Down -> {
+            val otherChar=if(nextChar=='[') ']' else '['
+            val behindCrateChars:Array<Char> = arrayOf('[',']')
+            var behindCratePos = nextPos
+            do {
+              behindCratePos += direction
+              behindCrateChars[0] = box.getAt(behindCratePos)
+              val otherPos = if(nextChar=='[') behindCratePos+Direction.Right else behindCratePos+Direction.Left
+              behindCrateChars[1] = box.getAt(otherPos)
+            } while (behindCrateChars[0] == nextChar && behindCrateChars[1] == otherChar)
 
+            if (behindCrateChars[0] == '.' && behindCrateChars[1] == '.') {
+              val otherRobotPos=if(nextChar=='[') robotPos+direction+Direction.Right else robotPos+direction+Direction.Left
+              box.setAt(robotPos, '.')
+              box.setAt(otherRobotPos, '.')
+              box.setAt(behindCratePos, nextChar)
+              val otherPos = if(nextChar=='[') behindCratePos+Direction.Right else behindCratePos+Direction.Left
+              box.setAt(otherPos,otherChar)
+              box.setAt(robotPos + direction, '@')
+            } else {
+              nextPos = robotPos
+            }
           }
         }
       }
