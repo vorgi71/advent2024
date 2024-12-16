@@ -16,6 +16,23 @@ data class Point(var x: Int, var y: Int) {
   operator fun plus(dir:Direction) :Point {
     return Point(dir.dx,dir.dy)+this
   }
+
+  fun getDirection(otherPoint:Point) : Direction? {
+    if(this.x==otherPoint.x && this.y==otherPoint.y+1) {
+      return Direction.Up
+    }
+    if(this.x==otherPoint.x && this.y==otherPoint.y-1) {
+      return Direction.Down
+    }
+    if(this.y==otherPoint.y && this.x==otherPoint.x-1) {
+      return Direction.Right
+    }
+    if(this.y==otherPoint.y && this.x==otherPoint.x+1) {
+      return Direction.Left
+    }
+
+    return null
+  }
 }
 
 open class CharGrid(input: List<String>) {
@@ -66,14 +83,36 @@ open class CharGrid(input: List<String>) {
         }
         append('\n')
       }
-
     }
     return returnValue
+  }
+
+  fun find(searchFunction: (x: Int, y: Int) -> Boolean) : Point? {
+    for(y in 0..<height) {
+      for(x in 0..<width) {
+        if(searchFunction(x,y)) {
+          return Point(x,y)
+        }
+      }
+    }
+    return null
+  }
+
+  fun findAll(searchFunction: (x: Int, y: Int) -> Boolean) : List<Point> {
+    val result= mutableListOf<Point>()
+    for(y in 0..<height) {
+      for(x in 0..<width) {
+        if(searchFunction(x,y)) {
+          result+= Point(x,y)
+        }
+      }
+    }
+    return result
   }
 }
 
 enum class Direction(val dx: Int, val dy: Int) {
-  Up(0, -1), Down(0, 1), Left(-1, 0), Right(1, 0);
+  Up(0, -1), Right(1, 0), Down(0, 1), Left(-1, 0),;
 
   operator fun plus(point: Point) :Point {
     return Point(this.dx,this.dy)+point
