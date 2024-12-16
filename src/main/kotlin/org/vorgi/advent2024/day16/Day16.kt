@@ -24,15 +24,20 @@ class Day16 {
     val result2 = findCheapestPath(input2)
     println("result2 = ${result2}")
 
-    check(result2==11048)
+    check(result2 == 11048)
 
-    val input3 = Utils.readInput("day16_3")
-    val result3 = findCheapestPath(input3)
-    println("result3 = ${result3}")
+//    val input3 = Utils.readInput("day16_3")
+//    val result3 = findCheapestPath(input3)
+//    println("result3 = ${result3}")
+
+    val result4 = findBestPaths(input1)
+
+    println("result4 $result4")
   }
 
-  private fun findCheapestPath(input: List<String>): Int {
-    var maze = CharGrid(input)
+
+  private fun findBestPaths(input: List<String>): Int {
+    val maze = CharGrid(input)
 
     val startPoint = maze.find { x, y -> maze.getAt(x, y) == 'S' }
 
@@ -42,9 +47,41 @@ class Day16 {
       throw UnsupportedOperationException("fail ")
     }
 
-    val visitedPoints = mutableListOf<Point>()
+    val results = findPaths(maze, startPoint,true,evaluatePath())
 
-    val result = findPaths(maze, startPoint, visitedPoints).toSet()
+    val min=evaluatePath().invoke(results.minBy(evaluatePath()))
+
+    val lowestResults=results.filter { evaluatePath().invoke(it)==min }
+
+    lowestResults.forEach { it ->
+      println("${evaluatePath().invoke(it)} ${it}")
+      val newMaze = CharGrid(input)
+      for (point in it) {
+        newMaze.setAt(point, 'O')
+      }
+      println(newMaze)
+    }
+
+    return 0
+  }
+
+  private fun findCheapestPath(input: List<String>): Int {
+    val maze = CharGrid(input)
+
+    val startPoint = maze.find { x, y -> maze.getAt(x, y) == 'S' }
+
+    val endPoint = maze.find { x, y -> maze.getAt(x, y) == 'E' }
+
+    if (startPoint == null || endPoint == null) {
+      throw UnsupportedOperationException("fail ")
+    }
+
+    val result = findPaths(maze, startPoint, false, evaluatePath()).toSet()
+
+    println("results:")
+    result.forEach {
+      println("$it: ${evaluatePath().invoke(it)}")
+    }
 
     val min = result.minBy(evaluatePath())
 
@@ -81,7 +118,7 @@ class Day16 {
     sum
   }
 
-  private fun findPaths(maze: CharGrid, startPoint: Point, visitedPoints: MutableList<Point>): List<List<Point>> {
+  private fun findPaths(maze: CharGrid, startPoint: Point,addEqualPaths:Boolean=false, evaluatePath: (List<Point>) -> Int): List<List<Point>> {
     val queue: Queue<MutableList<Point>> = LinkedList()
     queue.offer(listOf(startPoint).toMutableList())
     val result = mutableListOf<List<Point>>()
@@ -108,18 +145,21 @@ class Day16 {
         }
       }
 
-      val endpoints= mutableMapOf<Point,MutableList<Point>>()
+      val endpoints = mutableMapOf<Point, MutableList<Point>>()
+
+      val equalPathes = mutableListOf<MutableList<Point>>()
 
       queue.forEach { points ->
-        val lastPoint=points.last()
-        if(!endpoints.contains(lastPoint)) {
+        val lastPoint = points.last()
+        if (!endpoints.contains(lastPoint)) {
           endpoints[lastPoint] = points
         } else {
-          val storedValue=evaluatePath().invoke(endpoints[lastPoint]!!)
-          val newValue=evaluatePath().invoke(points)
-          println("removed duplicate")
-          if(newValue<storedValue) {
-            endpoints[lastPoint]=points
+          val storedValue = evaluatePath.invoke(endpoints[lastPoint]!!)
+          val newValue = evaluatePath.invoke(points)
+          if (newValue == storedValue && addEqualPaths) {
+            equalPathes += points
+          } else if (newValue < storedValue) {
+            endpoints[lastPoint] = points
           }
         }
       }
@@ -129,7 +169,11 @@ class Day16 {
         queue.add(points)
       }
 
-      println("${queue.size}")
+      if(addEqualPaths) {
+        equalPathes.forEach { points ->
+          queue.add(points)
+        }
+      }
 
     }
     return result
