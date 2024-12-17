@@ -1,6 +1,5 @@
 package org.vorgi.org.vorgi.advent2024.day17
 
-import kotlinx.coroutines.*
 import org.vorgi.org.vorgi.Utils
 import org.vorgi.org.vorgi.pow
 import javax.annotation.processing.Processor
@@ -142,43 +141,27 @@ class Day17 {
     val result3 = findAToCopy(input3)
     println("result3 = ${result3}")
 
-    val result4 = findAToCopy(input2)
+    val result4=findAToCopy(input2)
     println("result4 = ${result4}")
   }
 
   private fun findAToCopy(input: List<String>): UInt {
-    val processor = List(256) { Processor.fromInput(input) }
+    val processor=Processor.fromInput(input)
 
-    val scope = CoroutineScope(Dispatchers.Default)
-    var counter = 0U
-    var found=0U
-    val jobs=MutableList<Job?>(processor.size) { null }
+    var counter=0U
+    while(true) {
+      val output = computeInput(processor, counter)
 
-    while (found==0U) {
-      for (i in processor.indices) {
-        jobs[i] = scope.launch {
-          val currentCounter = counter + i.toUInt()
-          val output = computeInput(processor[i], currentCounter)
-
-          if (output == processor[i].program) {
-            found = currentCounter
-          }
-          if (currentCounter % 100_000U == 0U) {
-            println("counter: $currentCounter")
-          }
-        }
+      if(output==processor.program) {
+        break
       }
+      counter++
 
-      runBlocking {
-        jobs.forEach { job ->
-          job?.join()
-        }
+      if(counter%100_000U==0U) {
+        println("counter: $counter")
       }
-
-      counter+=processor.size.toUInt()
-
     }
-    return found
+    return counter
   }
 
 }
