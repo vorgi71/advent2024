@@ -33,6 +33,14 @@ fun Int.pow(m:Int) : Int {
   return result
 }
 
+fun UInt.pow(m:UInt) : UInt {
+  var result= 1U
+  for(i in 0..<m.toInt()) {
+    result*=this
+  }
+  return result
+}
+
 fun Long.pow(m:Long) :Long {
   var result=1L
   for(i in 0..<m) {
