@@ -46,6 +46,15 @@ open class CharGrid(input: List<String>) {
     List(height) { "$fillChar".repeat(width)}
   )
 
+  fun copy() : CharGrid {
+    val newLines=data.map { line ->
+      buildString {
+        line.forEach { append(it) }
+      }
+    }
+    return CharGrid(newLines)
+  }
+
   fun isInside(x:Int,y: Int) : Boolean {
     if (x < 0 || x >= width || y < 0 || y >= height) {
       return false
