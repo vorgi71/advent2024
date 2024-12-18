@@ -42,6 +42,10 @@ open class CharGrid(input: List<String>) {
     MutableList(width) { x -> input[y][x] }
   }
 
+  constructor(width:Int,height:Int,fillChar:Char='.') : this(
+    List(height) { "$fillChar".repeat(width)}
+  )
+
   fun isInside(x:Int,y: Int) : Boolean {
     if (x < 0 || x >= width || y < 0 || y >= height) {
       return false

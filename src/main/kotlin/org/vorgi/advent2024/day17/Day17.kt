@@ -152,6 +152,8 @@ class Day17 {
     while(true) {
       val output = computeInput(processor, counter)
 
+      println("output $output")
+
       if(output==processor.program) {
         break
       }
