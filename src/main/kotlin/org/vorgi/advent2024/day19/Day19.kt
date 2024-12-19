@@ -33,12 +33,10 @@ class Day19 {
 
   }
 
-  data class TowelStackData(
-    val remainingString:String
-  )
-
   private fun checkCombination(combination: String, availableTowels: List<String>) : Int {
-    val stack= mutableListOf(TowelStackData(combination))
+    println("checking $combination")
+
+    val stack= mutableSetOf(0)
 
     var combinations=0
 
@@ -47,15 +45,22 @@ class Day19 {
       stack.clear()
       for(towelStackData in towelStackEntries) {
         for(towel in availableTowels) {
-          if(towelStackData.remainingString.startsWith(towel)) {
-            val newTowelStackData=TowelStackData(towelStackData.remainingString.substring(towel.length))
-            if(newTowelStackData.remainingString.isBlank()) {
+          if(combination.indexOf(towel, startIndex = towelStackData)==towelStackData) {
+            val newTowelStackData=towelStackData+towel.length
+            if(newTowelStackData==combination.length) {
               combinations++
+              break // shortcut
             } else {
               stack += newTowelStackData
             }
           }
         }
+        if(combinations>0) {
+          break // shortcut
+        }
+      }
+      if(combinations>0) { // shortcut
+        break
       }
     }
 
