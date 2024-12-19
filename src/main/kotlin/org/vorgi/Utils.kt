@@ -1,6 +1,7 @@
 package org.vorgi.org.vorgi
 
 import java.io.File
+import kotlin.time.measureTime
 
 
 object Utils {
@@ -63,8 +64,32 @@ fun <T> List<T>.combinations(size: Int = this.size): List<List<T>> {
   return combinations
 }
 
+fun <T, R> ((T) -> R).memoize(): (T) -> R {
+  val cache = mutableMapOf<T, R>()
+  return { arg ->
+    if(arg==null) {
+      println("cache: ${cache.keys.size}")
+    }
+    cache.getOrPut(arg) { this(arg) }
+  }
+}
+
+fun fibonacci(n: Int): Int {
+  return if (n <= 1) n else fibonacci(n - 1) + fibonacci(n - 2)
+}
+
 fun main() {
   listOf('1','2','3').combinations(2).forEach {
     println(it)
   }
+
+  val memFib = ::fibonacci.memoize()
+  val normalTime=measureTime {
+    memFib(35)
+  }
+  val fibTime=measureTime {
+    memFib(35)
+  }
+
+  println("normalTime: $normalTime fibTime $fibTime = ${memFib(35)}")
 }
