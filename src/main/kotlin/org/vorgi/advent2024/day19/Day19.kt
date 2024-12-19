@@ -15,9 +15,17 @@ class Day19 {
     val input2 = Utils.readInput("day19_2")
     val result2 = countTowels(input2)
     println("result2 = $result2")
+
+    check(result2==267)
+
+    val result3 = countTowels(input1,false)
+    println("result3 = ${result3}")
+
+    val result4 = countTowels(input2,false)
+    println("result4 = ${result4}")
   }
 
-  private fun countTowels(input: List<String>): Int {
+  private fun countTowels(input: List<String>, shortcut: Boolean=true): Int {
     val availableTowels=input[0].split(",").map { it.trim() }
 
     val requestedCombinations=input.subList(2,input.size)
@@ -25,7 +33,15 @@ class Day19 {
     println("$availableTowels \n $requestedCombinations")
 
     val sum= requestedCombinations.sumOf { combination ->
-      val result=if(checkCombination(combination,availableTowels)==0) 0 else 1
+      val result=if(checkCombination(combination,availableTowels,true)==0) {
+        0
+      } else {
+        if(!shortcut) {
+          checkCombination(combination, availableTowels, shortcut)
+        } else {
+          1
+        }
+      }
       result
     }
 
@@ -33,10 +49,14 @@ class Day19 {
 
   }
 
-  private fun checkCombination(combination: String, availableTowels: List<String>) : Int {
+  private fun checkCombination(combination: String, availableTowels: List<String>, shortcut:Boolean=true) : Int {
     println("checking $combination")
 
-    val stack= mutableSetOf(0)
+    val stack= if(shortcut) {
+      mutableSetOf(0)
+    } else {
+      mutableListOf(0)
+    }
 
     var combinations=0
 
@@ -49,17 +69,18 @@ class Day19 {
             val newTowelStackData=towelStackData+towel.length
             if(newTowelStackData==combination.length) {
               combinations++
+              if(shortcut)
               break // shortcut
             } else {
               stack += newTowelStackData
             }
           }
         }
-        if(combinations>0) {
+        if(shortcut && combinations>0) {
           break // shortcut
         }
       }
-      if(combinations>0) { // shortcut
+      if(shortcut && combinations>0) { // shortcut
         break
       }
     }
