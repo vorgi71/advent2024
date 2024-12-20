@@ -2,7 +2,7 @@ package org.vorgi.org.vorgi.advent2024.day6
 
 import org.vorgi.org.vorgi.Utils
 
-data class Point(var x: Int, var y: Int) {
+open class Point(var x: Int, var y: Int) {
   constructor(p: Point) : this(p.x,p.y)
 
   operator fun minus(point: Point): Point {
@@ -13,7 +13,7 @@ data class Point(var x: Int, var y: Int) {
     return Point(this.x+point.x,this.y+point.y)
   }
 
-  operator fun plus(dir:Direction) :Point {
+  open operator fun plus(dir:Direction) :Point {
     return Point(dir.dx,dir.dy)+this
   }
 
